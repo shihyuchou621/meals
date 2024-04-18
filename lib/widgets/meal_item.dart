@@ -7,9 +7,11 @@ class MealItem extends StatelessWidget {
   const MealItem({
     super.key,
     required this.meal,
+    required this.onSelectMeal,
   });
 
   final Meal meal;
+  final void Function(BuildContext context, Meal meal) onSelectMeal;
 
   String get complexityText {
     return meal.complexity.name[0].toUpperCase() +
@@ -31,7 +33,7 @@ class MealItem extends StatelessWidget {
       clipBehavior: Clip.hardEdge, // 將超出邊界的部分切掉
       elevation: 3,
       child: InkWell(
-        onTap: () {},
+        onTap: () => onSelectMeal(context, meal),
         // Stack可將多個 Widget堆疊在一起（元素可重疊）
         child: Stack(
           children: [
@@ -80,7 +82,6 @@ class MealItem extends StatelessWidget {
                           icon: Icons.attach_money,
                           label: affordabilityText,
                         ),
-                        const SizedBox(width: 12),
                       ],
                     )
                   ],
