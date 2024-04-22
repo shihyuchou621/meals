@@ -1,29 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 // import 'package:meals/screens/tabs.dart';
 // import 'package:meals/widgets/main_drawer.dart';
+import 'package:meals/providers/filters_provider.dart';
 
-enum Filter {
-  glutenFree,
-  lactoseFree,
-  vegetarian,
-  vegan,
-}
-
-class FiltersScreen extends StatefulWidget {
-  const FiltersScreen({
-    super.key,
-    required this.currentFilters,
-  });
-
-  final Map<Filter, bool> currentFilters;
+// ConsumerWidget: 有監聽Provider變化的Widget
+class FiltersScreen extends ConsumerStatefulWidget {
+  const FiltersScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() {
+// ConsumerState: 有監聽Provider變化的State
+  ConsumerState<FiltersScreen> createState() {
     return _FilterScreenState();
   }
 }
 
-class _FilterScreenState extends State<FiltersScreen> {
+// ConsumerState: 有監聽Provider變化的State
+class _FilterScreenState extends ConsumerState<FiltersScreen> {
   var _glutenFreeFilterSet = false;
   var _lactoseFreeFilterSet = false;
   var _vegetarianFilterSet = false;
@@ -32,10 +26,11 @@ class _FilterScreenState extends State<FiltersScreen> {
   @override
   void initState() {
     super.initState();
-    _glutenFreeFilterSet = widget.currentFilters[Filter.glutenFree]!;
-    _lactoseFreeFilterSet = widget.currentFilters[Filter.lactoseFree]!;
-    _vegetarianFilterSet = widget.currentFilters[Filter.vegetarian]!;
-    _veganFilterSet = widget.currentFilters[Filter.vegan]!;
+    final activeFilters = ref.read(filterProvider);
+    _glutenFreeFilterSet = activeFilters[Filter.glutenFree]!;
+    _lactoseFreeFilterSet = activeFilters[Filter.lactoseFree]!;
+    _vegetarianFilterSet = activeFilters[Filter.vegetarian]!;
+    _veganFilterSet = activeFilters[Filter.vegan]!;
   }
 
   @override
@@ -59,16 +54,23 @@ class _FilterScreenState extends State<FiltersScreen> {
 
       // WillPopScope已被棄用，改用PopScope
       body: PopScope(
-        canPop: false,
+        canPop:
+            true, // 若是使用註解掉的Navigator.of(context).pop，這裡要設為false，下兩行的if (didPop)要改為if (!didPop)
         onPopInvoked: (didPop) {
-          if (!didPop) {
-            // ↓返回的時候將內容傳遞給上一個頁面，記得前面導頁過來不要用pushReplacement要用push
-            Navigator.of(context).pop({
+          if (didPop) {
+            ref.read(filterProvider.notifier).setFilters({
               Filter.glutenFree: _glutenFreeFilterSet,
               Filter.lactoseFree: _lactoseFreeFilterSet,
               Filter.vegetarian: _vegetarianFilterSet,
               Filter.vegan: _veganFilterSet,
             });
+            // ↓返回的時候將內容傳遞給上一個頁面，記得前面導頁過來不要用pushReplacement要用push
+            // Navigator.of(context).pop({
+            //   Filter.glutenFree: _glutenFreeFilterSet,
+            //   Filter.lactoseFree: _lactoseFreeFilterSet,
+            //   Filter.vegetarian: _vegetarianFilterSet,
+            //   Filter.vegan: _veganFilterSet,
+            // });
           }
         },
         child: Column(
