@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:meals/providers/favorites_provider.dart';
 import 'package:meals/providers/filters_provider.dart';
-import 'package:meals/providers/meals_provider.dart';
 import 'package:meals/screens/categories.dart';
 import 'package:meals/screens/filters.dart';
 import 'package:meals/screens/meals.dart';
@@ -50,24 +49,8 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // watch: 監聽Provider的變化並重新構建Widget（即使不會改變也不建議直接用read，還是用watch保險）
-    final meals = ref.watch(mealsProvider);
-    final activeFilters = ref.watch(filterProvider);
-    final availableMeals = meals.where((meal) {
-      if (activeFilters[Filter.glutenFree]! && !meal.isGlutenFree) {
-        return false;
-      }
-      if (activeFilters[Filter.lactoseFree]! && !meal.isLactoseFree) {
-        return false;
-      }
-      if (activeFilters[Filter.vegetarian]! && !meal.isVegetarian) {
-        return false;
-      }
-      if (activeFilters[Filter.vegan]! && !meal.isVegan) {
-        return false;
-      }
-      return true;
-    }).toList();
+    // watch: 監聽Provider的變化並重新構建Widget（即使暫時不改變也不建議直接用read，用watch較保險）
+    final availableMeals = ref.watch(filterMealProvider);
 
     Widget activePage = CategoriesScreen(
       availableMeals: availableMeals,
